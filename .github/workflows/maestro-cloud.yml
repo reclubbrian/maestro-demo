@@ -7,45 +7,17 @@ on:
     branches: [main]
 
 jobs:
-  build-and-test:
-    name: Build iOS & Run Maestro Cloud
+  test:
+    name: Run Maestro Cloud Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
-      - name: Install dependencies
-        run: bun install
-
-      - name: Setup EAS CLI
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-
-      - name: Build iOS Simulator (remote EAS)
-        run: |
-          BUILD_JSON=$(eas build \
-            --platform ios \
-            --profile simulator \
-            --non-interactive \
-            --wait \
-            --json \
-            2>&1 | grep '^\[' | tail -1)
-          echo "Raw JSON: $BUILD_JSON"
-          BUILD_URL=$(echo "$BUILD_JSON" | jq -r '.[0].artifacts.buildUrl')
-          echo "Build URL: $BUILD_URL"
-          echo "BUILD_URL=$BUILD_URL" >> "$GITHUB_ENV"
-
-      - name: Download build artifact
-        run: |
-          curl -fL "$BUILD_URL" -o app.tar.gz
-          ls -lh app.tar.gz
+      - name: Download iOS Simulator build
+        run: curl -fL "${{ secrets.IOS_BUILD_URL }}" -o app.tar.gz
 
       - name: Run Maestro Cloud tests
         uses: mobile-dev-inc/action-maestro-cloud@v1.9.1
