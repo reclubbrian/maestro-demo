@@ -18,12 +18,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download iOS Simulator build
-        run: curl -fL "${{ secrets.IOS_BUILD_URL }}" -o app.tar.gz
+        run: |
+          curl -fL "${{ secrets.IOS_BUILD_URL }}" -o app.tar.gz
+          tar -xzf app.tar.gz
+          APP_PATH=$(find . -name "*.app" -maxdepth 3 | head -1)
+          echo "Found app: $APP_PATH"
+          zip -r app.zip "$APP_PATH"
 
       - name: Run Maestro Cloud tests
         uses: mobile-dev-inc/action-maestro-cloud@v1.9.1
         with:
           api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
-          app-file: app.tar.gz
-          flow-file: .maestro/
+          app-file: app.zip
+          workspace: .maestro/
           ios-version: "17"
