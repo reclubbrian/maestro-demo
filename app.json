@@ -13,7 +13,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.reclub-brian.maestro-demo"
+      "bundleIdentifier": "com.reclub-brian.maestro-demo",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -26,6 +29,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c615c33f-7afa-49e3-bfc6-d8944db62d78"
+      }
     }
   }
 }

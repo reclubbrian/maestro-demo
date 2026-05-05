@@ -1,0 +1,252 @@
+appId: com.reclub-brian.maestro-demo
+---
+
+- launchApp:
+    clearState: true
+
+# ── 1. Header ────────────────────────────────
+- assertVisible:
+    id: "scroll_main"
+
+- assertVisible:
+    id: "header"
+
+- assertVisible:
+    id: "header_name"
+    label: "Hi Tony,"
+
+# ── 2. Search input ──────────────────────────
+- assertVisible:
+    id: "search_container"
+
+- assertVisible:
+    id: "input_search"
+
+# Nhập từ khóa → drill list filter
+- tapOn:
+    id: "input_search"
+
+- inputText: "Professional"
+
+- assertVisible:
+    id: "drill_title_1"
+
+- assertNotVisible:
+    id: "btn_drill_2"
+
+- assertNotVisible:
+    id: "btn_drill_3"
+
+# Xoá → tìm từ không khớp → hiện empty state
+- eraseText: 12
+
+- inputText: "xyz_no_match"
+
+- assertVisible:
+    id: "no_results"
+
+# Xoá → ẩn keyboard → về danh sách đầy đủ
+- eraseText: 12
+
+- hideKeyboard
+
+- scrollUntilVisible:
+    element:
+      id: "btn_drill_1"
+    direction: UP
+
+- assertVisible:
+    id: "btn_drill_1"
+
+- assertVisible:
+    id: "btn_drill_2"
+
+- assertVisible:
+    id: "btn_drill_3"
+
+# ── 3. Stats ─────────────────────────────────
+- assertVisible:
+    id: "stat_sessions"
+
+- assertVisible:
+    id: "stat_value_sessions"
+    label: "24"
+
+- assertVisible:
+    id: "stat_this_week"
+
+- assertVisible:
+    id: "stat_value_this_week"
+    label: "3h 40m"
+
+- assertVisible:
+    id: "stat_dupr"
+
+- assertVisible:
+    id: "stat_value_dupr"
+    label: "3.5"
+
+# ── 4. Hero card ─────────────────────────────
+- assertVisible:
+    id: "btn_start_training"
+
+- assertVisible:
+    id: "start_training"
+
+- assertVisible:
+    id: "pick_a_drill"
+
+- assertVisible:
+    id: "begin"
+
+# ── 5. Drills ────────────────────────────────
+- assertVisible:
+    id: "featured_drills"
+
+- assertVisible:
+    id: "btn_drill_1"
+
+- assertVisible:
+    id: "drill_title_1"
+    label: "Kitchen Control"
+
+- assertVisible:
+    id: "btn_drill_2"
+
+- assertVisible:
+    id: "drill_title_2"
+    label: "Third Shot Drop"
+
+- assertVisible:
+    id: "btn_drill_3"
+
+- assertVisible:
+    id: "drill_title_3"
+    label: "Dink Rallies"
+
+# ── 6. Scroll đến progress banner ────────────
+- scrollUntilVisible:
+    element:
+      id: "progress_banner"
+    direction: DOWN
+
+- assertVisible:
+    id: "progress_banner"
+
+- assertVisible:
+    id: "progress_pct"
+    label: "60%"
+
+- assertVisible:
+    id: "progress_sub"
+    label: "3 of 5 sessions completed"
+
+- assertVisible:
+    id: "progress_fill"
+
+# ── 7. Fetch API – Training Logs ─────────────
+- scrollUntilVisible:
+    element:
+      id: "fetch_section"
+    direction: DOWN
+
+- assertVisible:
+    id: "btn_fetch"
+
+- assertVisible:
+    id: "btn_fetch_label"
+    label: "Load logs"
+
+- tapOn:
+    id: "btn_fetch"
+
+# - assertVisible:
+#     id: "fetch_loading"
+
+# - extendedWaitUntil:
+#     visible:
+#       id: "log_item_1"
+#     timeout: 15000
+
+# - assertVisible:
+#     id: "log_item_1"
+
+# - assertVisible:
+#     id: "log_title_1"
+
+# - assertVisible:
+#     id: "log_item_2"
+
+# - assertVisible:
+#     id: "log_item_3"
+
+# - assertNotVisible:
+#     id: "fetch_error"
+
+# - assertVisible:
+#     id: "btn_fetch_label"
+#     label: "Refresh"
+
+# - tapOn:
+#     id: "btn_fetch"
+
+# # - assertVisible:
+# #     id: "fetch_loading"
+
+# - extendedWaitUntil:
+#     visible:
+#       id: "log_item_1"
+#     timeout: 15000
+
+# - assertVisible:
+#     id: "log_item_1"
+
+# # ── 8. Scroll lên lại đầu ────────────────────
+# - scrollUntilVisible:
+#     element:
+#       id: "header_name"
+#     direction: UP
+
+# - assertVisible:
+#     id: "header_name"
+
+# # ── 9. Tap hero ──────────────────────────────
+# - tapOn:
+#     id: "btn_start_training"
+
+# - back
+
+# - assertVisible:
+#     id: "scroll_main"
+
+# # ── 10. Tap từng drill (không navigate, không back) ─
+# - tapOn:
+#     id: "btn_drill_1"
+
+# - assertVisible:
+#     id: "btn_drill_1"
+
+# - tapOn:
+#     id: "btn_drill_2"
+
+# - assertVisible:
+#     id: "btn_drill_2"
+
+# - tapOn:
+#     id: "btn_drill_3"
+
+# - assertVisible:
+#     id: "btn_drill_3"
+
+# ── 11. Sanity check ─────────────────────────
+- assertNotVisible:
+    text: "Error"
+
+- assertNotVisible:
+    text: "undefined"
+
+- assertNotVisible:
+    text: "null"
+
+# ── 12. Screenshot ───────────────────────────
+- takeScreenshot: home_screen_final

@@ -1,0 +1,56 @@
+name: Maestro Cloud Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    name: Build iOS & Run Maestro Cloud
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup Expo & EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build iOS Simulator (EAS)
+        id: eas-build
+        run: |
+          BUILD_JSON=$(eas build \
+            --platform ios \
+            --profile simulator \
+            --non-interactive \
+            --json \
+            --no-wait=false)
+          BUILD_URL=$(echo "$BUILD_JSON" | jq -r '.[0].artifacts.buildUrl')
+          echo "build_url=$BUILD_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Download build artifact
+        run: |
+          curl -L "${{ steps.eas-build.outputs.build_url }}" \
+            -o app.tar.gz
+
+      - name: Run Maestro Cloud tests
+        uses: mobile-dev-inc/action-maestro-cloud@v1
+        with:
+          api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
+          app-file: app.tar.gz
+          flow-file: .maestro/
+          ios-version: 17
