@@ -25,10 +25,21 @@ jobs:
           echo "Found app: $APP_PATH"
           zip -r app.zip "$APP_PATH"
 
-      - name: Run Maestro Cloud tests
-        uses: mobile-dev-inc/action-maestro-cloud@v1.9.1
-        with:
-          api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
-          app-file: app.zip
-          workspace: .maestro/
-          ios-version: "17"
+      - name: Install Maestro CLI
+        run: curl -Ls "https://get.maestro.mobile.dev" | bash
+
+      - name: Run Maestro Cloud tests (with retry)
+        env:
+          MAESTRO_CLOUD_API_KEY: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
+        run: |
+          export PATH="$PATH:$HOME/.maestro/bin"
+          for i in 1 2 3; do
+            echo "Attempt $i..."
+            maestro cloud \
+              --apiKey "$MAESTRO_CLOUD_API_KEY" \
+              --ios-version 17 \
+              app.zip \
+              .maestro/ && break
+            echo "Failed, retrying in 30s..."
+            sleep 30
+          done
