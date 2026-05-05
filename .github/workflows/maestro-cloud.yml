@@ -9,16 +9,11 @@ on:
 jobs:
   build-and-test:
     name: Build iOS & Run Maestro Cloud
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -26,20 +21,29 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Setup Expo & EAS CLI
+      - name: Setup EAS CLI
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Build iOS Simulator (local)
+      - name: Build iOS Simulator (remote EAS)
         run: |
           eas build \
             --platform ios \
             --profile simulator \
-            --local \
             --non-interactive \
-            --output ./app.tar.gz
+            --wait \
+            --json \
+            > build-output.json
+          cat build-output.json
+          BUILD_URL=$(jq -r '.[0].artifacts.buildUrl' build-output.json)
+          echo "BUILD_URL=$BUILD_URL" >> "$GITHUB_ENV"
+
+      - name: Download build artifact
+        run: |
+          curl -L "$BUILD_URL" -o app.tar.gz
+          ls -lh app.tar.gz
 
       - name: Run Maestro Cloud tests
         uses: mobile-dev-inc/action-maestro-cloud@v1.9.1
