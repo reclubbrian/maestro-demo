@@ -27,6 +27,12 @@ jobs:
           echo "Found app: $APP_PATH"
           zip -r app.zip "$APP_PATH"
 
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: temurin
+
       - name: Install Maestro CLI
         run: curl -Ls "https://get.maestro.mobile.dev" | bash
 
