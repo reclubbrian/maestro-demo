@@ -31,26 +31,23 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Build iOS Simulator (EAS)
-        id: eas-build
         run: |
-          BUILD_JSON=$(eas build \
+          eas build \
             --platform ios \
             --profile simulator \
             --non-interactive \
             --json \
-            --no-wait=false)
-          BUILD_URL=$(echo "$BUILD_JSON" | jq -r '.[0].artifacts.buildUrl')
-          echo "build_url=$BUILD_URL" >> "$GITHUB_OUTPUT"
+            | tee build-output.json
+          BUILD_URL=$(jq -r '.[0].artifacts.buildUrl' build-output.json)
+          echo "BUILD_URL=$BUILD_URL" >> "$GITHUB_ENV"
 
       - name: Download build artifact
-        run: |
-          curl -L "${{ steps.eas-build.outputs.build_url }}" \
-            -o app.tar.gz
+        run: curl -L "$BUILD_URL" -o app.tar.gz
 
       - name: Run Maestro Cloud tests
-        uses: mobile-dev-inc/action-maestro-cloud@v1
+        uses: mobile-dev-inc/action-maestro-cloud@v1.9.1
         with:
           api-key: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
           app-file: app.tar.gz
           flow-file: .maestro/
-          ios-version: 17
+          ios-version: "17"
