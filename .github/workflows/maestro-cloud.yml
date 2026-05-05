@@ -12,6 +12,8 @@ jobs:
     name: Run Maestro Cloud Tests
     runs-on: ubuntu-22.04
     timeout-minutes: 30
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout repository
@@ -33,13 +35,18 @@ jobs:
           MAESTRO_CLOUD_API_KEY: ${{ secrets.MAESTRO_CLOUD_API_KEY }}
         run: |
           export PATH="$PATH:$HOME/.maestro/bin"
+          SUCCESS=false
           for i in 1 2 3; do
             echo "Attempt $i..."
-            maestro cloud \
+            if maestro cloud \
               --apiKey "$MAESTRO_CLOUD_API_KEY" \
               --ios-version 17 \
               app.zip \
-              .maestro/ && break
+              .maestro/; then
+              SUCCESS=true
+              break
+            fi
             echo "Failed, retrying in 30s..."
             sleep 30
           done
+          $SUCCESS || { echo "All attempts failed"; exit 1; }
