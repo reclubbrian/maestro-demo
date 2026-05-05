@@ -9,7 +9,7 @@ on:
 jobs:
   build-and-test:
     name: Build iOS & Run Maestro Cloud
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout repository
@@ -30,19 +30,14 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Build iOS Simulator (EAS)
+      - name: Build iOS Simulator (local)
         run: |
           eas build \
             --platform ios \
             --profile simulator \
+            --local \
             --non-interactive \
-            --json \
-            | tee build-output.json
-          BUILD_URL=$(jq -r '.[0].artifacts.buildUrl' build-output.json)
-          echo "BUILD_URL=$BUILD_URL" >> "$GITHUB_ENV"
-
-      - name: Download build artifact
-        run: curl -L "$BUILD_URL" -o app.tar.gz
+            --output ./app.tar.gz
 
       - name: Run Maestro Cloud tests
         uses: mobile-dev-inc/action-maestro-cloud@v1.9.1
